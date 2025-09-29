@@ -72,37 +72,6 @@ npm run build
 # The build folder contains optimized files for deployment
 ```
 
-## 🌐 Deployment
-
-### Netlify Deployment
-
-1. **Connect Repository**
-   - Go to [Netlify](https://netlify.com)
-   - Click "New site from Git"
-   - Connect your GitHub account
-   - Select the TalentFlow repository
-
-2. **Build Settings**
-   - **Build Command**: `npm run build`
-   - **Publish Directory**: `build`
-   - **Node Version**: 18.x
-
-3. **Environment Variables** (if needed)
-   - Add any required environment variables in Netlify dashboard
-
-4. **Deploy**
-   - Click "Deploy site"
-   - Your site will be available at `https://your-site-name.netlify.app`
-
-### Manual Deployment
-
-```bash
-# Build the project
-npm run build
-
-# Deploy the build folder to your hosting service
-# Upload the contents of the 'build' folder to your web server
-```
 
 ## 📱 Pages & Routes
 
@@ -199,22 +168,6 @@ src/
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- React team for the amazing framework
-- Tailwind CSS for the utility-first CSS framework
-- Lucide React for the beautiful icons
-- All contributors and supporters
-
-## 📞 Support
-
-For support, email support@talentflow.com or create an issue in the repository.
-
----
 
 **Built with ❤️ by Jivan Jala**
 
