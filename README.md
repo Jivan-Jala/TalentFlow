@@ -169,8 +169,3 @@ src/
 5. Open a Pull Request
 
 
-**Built with ❤️ by Jivan Jala**
-
-[![GitHub](https://img.shields.io/badge/GitHub-Jivan--Jala-181717?style=for-the-badge&logo=github)](https://github.com/Jivan-Jala)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/jivan-jala)
-[![Portfolio](https://img.shields.io/badge/Portfolio-Visit-FF6B6B?style=for-the-badge&logo=portfolio)](https://jivan-jala.dev)
