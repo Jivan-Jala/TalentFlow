@@ -71,6 +71,7 @@ export function Settings() {
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef(null);
 
   // Animation and visibility effects
@@ -78,8 +79,27 @@ export function Settings() {
     setIsVisible(true);
   }, []);
 
+  // Mobile detection and performance optimization
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Mouse tracking for parallax effects
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    // Skip animations on mobile or when user prefers reduced motion
+    if (isMobile || prefersReducedMotion) {
+      return;
+    }
+
     const handleMouseMove = (e) => {
       if (containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
@@ -95,7 +115,7 @@ export function Settings() {
       container.addEventListener('mousemove', handleMouseMove);
       return () => container.removeEventListener('mousemove', handleMouseMove);
     }
-  }, []);
+  }, [isMobile]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   
@@ -326,9 +346,9 @@ export function Settings() {
       <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-br from-blue-200 to-blue-300 rounded-full opacity-20 animate-pulse" style={{ animationDelay: '1s' }}></div>
       <div className="absolute bottom-20 left-1/4 w-20 h-20 bg-gradient-to-br from-purple-200 to-purple-300 rounded-full opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
       
-      <div className="relative z-10 space-y-8 p-6">
+      <div className={`relative z-10 space-y-8 ${isMobile ? 'p-4 space-y-6' : 'p-6'}`}>
         {/* Enhanced Header Section */}
-        <div className={`bg-white rounded-3xl p-8 text-black relative overflow-hidden border-2 border-orange-200 shadow-2xl transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div className={`bg-white rounded-3xl text-black relative overflow-hidden border-2 border-orange-200 shadow-2xl transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} ${isMobile ? 'p-4' : 'p-8'}`}>
           <div 
             className="absolute inset-0 opacity-10"
             style={{
@@ -341,11 +361,11 @@ export function Settings() {
           <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-blue-500/5"></div>
           
           <div className="relative z-10">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between ${isMobile ? 'gap-4' : 'gap-6'}`}>
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center relative overflow-hidden group hover:scale-110 transition-all duration-500 shadow-lg">
-                    <SettingsIcon className="w-8 h-8 text-white relative z-10 group-hover:animate-pulse" />
+                  <div className={`bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-lg ${isMobile ? 'w-12 h-12' : 'w-16 h-16'} ${isMobile ? 'transition-transform duration-300' : 'group hover:scale-110 transition-all duration-500'}`}>
+                    <SettingsIcon className={`text-white relative z-10 ${isMobile ? 'w-6 h-6' : 'w-8 h-8'} ${isMobile ? '' : 'group-hover:animate-pulse'}`} />
                     <img 
                       src={image1} 
                       alt="Settings background" 
@@ -354,44 +374,44 @@ export function Settings() {
                     <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-blue-500/20 rounded-2xl"></div>
                   </div>
                   <div>
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-blue-600 bg-clip-text text-transparent">
+                    <h1 className={`font-bold bg-gradient-to-r from-orange-600 to-blue-600 bg-clip-text text-transparent ${isMobile ? 'text-2xl' : 'text-3xl sm:text-4xl lg:text-5xl'}`}>
                       Settings & Preferences
                     </h1>
-                    <p className="text-lg text-black/70 font-medium">
-                      Customize your TalentFlow experience
+                    <p className={`text-black/70 font-medium ${isMobile ? 'text-sm' : 'text-lg'}`}>
+                      {isMobile ? 'Customize your experience' : 'Customize your TalentFlow experience'}
                     </p>
                   </div>
                 </div>
                 
-                {/* Enhanced Stats */}
-                <div className="flex flex-wrap gap-4">
-                  <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-100 to-orange-200 rounded-xl">
-                    <SettingsIcon className="w-5 h-5 text-orange-600" />
-                    <span className="text-sm font-semibold text-orange-800">System Configuration</span>
+                {/* Enhanced Stats - Mobile Optimized */}
+                <div className={`grid gap-2 ${isMobile ? 'grid-cols-2' : 'flex flex-wrap gap-4'}`}>
+                  <div className={`flex items-center gap-1 bg-gradient-to-r from-orange-100 to-orange-200 rounded-lg ${isMobile ? 'px-2 py-1' : 'px-4 py-2 rounded-xl'}`}>
+                    <SettingsIcon className="w-3 h-3 text-orange-600 flex-shrink-0" />
+                    <span className="text-xs font-semibold text-orange-800 truncate">System Config</span>
                   </div>
-                  <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-blue-200 rounded-xl">
-                    <Shield className="w-5 h-5 text-blue-600" />
-                    <span className="text-sm font-semibold text-blue-800">Security & Privacy</span>
+                  <div className={`flex items-center gap-1 bg-gradient-to-r from-blue-100 to-blue-200 rounded-lg ${isMobile ? 'px-2 py-1' : 'px-4 py-2 rounded-xl'}`}>
+                    <Shield className="w-3 h-3 text-blue-600 flex-shrink-0" />
+                    <span className="text-xs font-semibold text-blue-800 truncate">Security</span>
                   </div>
-                  <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-100 to-green-200 rounded-xl">
-                    <Palette className="w-5 h-5 text-green-600" />
-                    <span className="text-sm font-semibold text-green-800">Customization</span>
+                  <div className={`flex items-center gap-1 bg-gradient-to-r from-green-100 to-green-200 rounded-lg ${isMobile ? 'px-2 py-1' : 'px-4 py-2 rounded-xl'}`}>
+                    <Palette className="w-3 h-3 text-green-600 flex-shrink-0" />
+                    <span className="text-xs font-semibold text-green-800 truncate">Customize</span>
                   </div>
-                  <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-purple-200 rounded-xl">
-                    <Database className="w-5 h-5 text-purple-600" />
-                    <span className="text-sm font-semibold text-purple-800">Data Management</span>
+                  <div className={`flex items-center gap-1 bg-gradient-to-r from-purple-100 to-purple-200 rounded-lg ${isMobile ? 'px-2 py-1' : 'px-4 py-2 rounded-xl'}`}>
+                    <Database className="w-3 h-3 text-purple-600 flex-shrink-0" />
+                    <span className="text-xs font-semibold text-purple-800 truncate">Data</span>
                   </div>
                 </div>
               </div>
               
-              <div className="flex gap-4">
-                <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-3 text-lg font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 gap-3">
-                  <Save className="w-5 h-5" />
-                  Save All
+              <div className={`flex gap-3 ${isMobile ? 'flex-col' : 'flex-row'}`}>
+                <Button className={`bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 gap-3 ${isMobile ? 'px-3 py-2 text-sm' : 'px-6 py-3 text-lg'}`}>
+                  <Save className="w-4 h-4" />
+                  {isMobile ? 'Save All' : 'Save All'}
                 </Button>
-                <Button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 text-lg font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 gap-3">
-                  <RefreshCw className="w-5 h-5" />
-                  Reset
+                <Button className={`bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 gap-3 ${isMobile ? 'px-3 py-2 text-sm' : 'px-6 py-3 text-lg'}`}>
+                  <RefreshCw className="w-4 h-4" />
+                  {isMobile ? 'Reset' : 'Reset'}
                 </Button>
               </div>
             </div>
@@ -405,31 +425,31 @@ export function Settings() {
         {/* Enhanced Settings Navigation */}
         <div className="group relative">
           <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-blue-500/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-          <Card className="relative group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-0 shadow-lg bg-white/90 backdrop-blur-sm">
+          <Card className={`relative group border-0 shadow-lg bg-white/90 backdrop-blur-sm ${isMobile ? 'hover:shadow-lg transition-shadow duration-300' : 'hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2'}`}>
             <CardHeader className="relative z-10">
-              <CardTitle className="flex items-center gap-3 text-xl font-bold text-black">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center">
-                  <SettingsIcon className="w-6 h-6 text-white" />
+              <CardTitle className={`flex items-center gap-3 font-bold text-black ${isMobile ? 'text-lg' : 'text-xl'}`}>
+                <div className={`bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center ${isMobile ? 'w-8 h-8' : 'w-10 h-10'}`}>
+                  <SettingsIcon className={`text-white ${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`} />
                 </div>
                 Settings Categories
               </CardTitle>
             </CardHeader>
             <CardContent className="relative z-10">
-              <div className="flex flex-wrap gap-3">
+              <div className={`flex gap-2 ${isMobile ? 'flex-wrap' : 'flex-wrap gap-3'}`}>
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex items-center gap-2 rounded-lg font-medium transition-colors ${isMobile ? 'px-3 py-2 text-xs' : 'px-4 py-2 text-sm'} ${
                       activeTab === tab.id
                         ? 'bg-orange-100 text-orange-700 border border-orange-200'
                         : 'text-black hover:bg-orange-50'
                     }`}
                   >
-                    <Icon className="w-4 h-4" />
-                    {tab.label}
+                    <Icon className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                    {isMobile ? tab.label.split(' ')[0] : tab.label}
                   </button>
                 );
               })}
@@ -470,7 +490,7 @@ export function Settings() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
                   <div>
                     <Label htmlFor="name">Full Name</Label>
                     <Input
@@ -490,7 +510,7 @@ export function Settings() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
                   <div>
                     <Label htmlFor="phone">Phone Number</Label>
                     <Input
@@ -509,7 +529,7 @@ export function Settings() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
                   <div>
                     <Label htmlFor="department">Department</Label>
                     <Input
@@ -579,7 +599,7 @@ export function Settings() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
                   <div>
                     <Label htmlFor="companyName">Company Name</Label>
                     <Input
@@ -598,7 +618,7 @@ export function Settings() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
                   <div>
                     <Label htmlFor="industry">Industry</Label>
                     <Select
@@ -763,7 +783,7 @@ export function Settings() {
                     </label>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
                     <div>
                       <Label htmlFor="sessionTimeout">Session Timeout (minutes)</Label>
                       <Input
@@ -824,10 +844,10 @@ export function Settings() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
                   <div>
                     <Label>Theme Mode</Label>
-                    <div className="flex gap-2 mt-2">
+                    <div className={`flex gap-2 mt-2 ${isMobile ? 'flex-wrap' : ''}`}>
                       {[
                         { value: 'light', label: 'Light', icon: Sun },
                         { value: 'dark', label: 'Dark', icon: Moon },
@@ -838,13 +858,13 @@ export function Settings() {
                           <button
                             key={mode.value}
                             onClick={() => handleThemeChange('mode', mode.value)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
+                            className={`flex items-center gap-2 rounded-lg border transition-colors ${isMobile ? 'px-3 py-2 text-sm' : 'px-4 py-2'} ${
                               theme.mode === mode.value
                                 ? 'bg-orange-100 border-orange-200 text-orange-700'
                                 : 'border-gray-200 text-black hover:bg-gray-50'
                             }`}
                           >
-                            <Icon className="w-4 h-4" />
+                            <Icon className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
                             {mode.label}
                           </button>
                         );
@@ -854,7 +874,7 @@ export function Settings() {
 
                   <div>
                     <Label>Primary Color</Label>
-                    <div className="flex gap-2 mt-2">
+                    <div className={`flex gap-2 mt-2 ${isMobile ? 'flex-wrap' : ''}`}>
                       {[
                         { value: 'orange', color: 'bg-orange-500' },
                         { value: 'blue', color: 'bg-blue-500' },
@@ -864,7 +884,7 @@ export function Settings() {
                         <button
                           key={color.value}
                           onClick={() => handleThemeChange('primaryColor', color.value)}
-                          className={`w-8 h-8 rounded-full ${color.color} border-2 ${
+                          className={`rounded-full border-2 ${color.color} ${isMobile ? 'w-6 h-6' : 'w-8 h-8'} ${
                             theme.primaryColor === color.value ? 'border-black' : 'border-gray-300'
                           }`}
                         />
@@ -873,7 +893,7 @@ export function Settings() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
                   <div>
                     <Label>Font Size</Label>
                     <Select
@@ -943,7 +963,7 @@ export function Settings() {
                     </label>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
                     <div>
                       <Label htmlFor="backupFrequency">Backup Frequency</Label>
                       <Select
@@ -967,7 +987,7 @@ export function Settings() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
                     <div>
                       <Label htmlFor="exportFormat">Export Format</Label>
                       <Select

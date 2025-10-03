@@ -162,6 +162,7 @@ export function Analytics() {
   const [isLoading, setIsLoading] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isMobile, setIsMobile] = useState(false);
   const containerRef = useRef(null);
 
   // Animation and visibility effects
@@ -169,8 +170,27 @@ export function Analytics() {
     setIsVisible(true);
   }, []);
 
+  // Mobile detection and performance optimization
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Mouse tracking for parallax effects
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    // Skip animations on mobile or when user prefers reduced motion
+    if (isMobile || prefersReducedMotion) {
+      return;
+    }
+
     const handleMouseMove = (e) => {
       if (containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
@@ -186,7 +206,7 @@ export function Analytics() {
       container.addEventListener('mousemove', handleMouseMove);
       return () => container.removeEventListener('mousemove', handleMouseMove);
     }
-  }, []);
+  }, [isMobile]);
 
   // Generate chart data
   useEffect(() => {
@@ -298,9 +318,9 @@ export function Analytics() {
       <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-br from-blue-200 to-blue-300 rounded-full opacity-20 animate-pulse" style={{ animationDelay: '1s' }}></div>
       <div className="absolute bottom-20 left-1/4 w-20 h-20 bg-gradient-to-br from-purple-200 to-purple-300 rounded-full opacity-20 animate-pulse" style={{ animationDelay: '2s' }}></div>
       
-      <div className="relative z-10 space-y-8 p-6">
+      <div className={`relative z-10 space-y-8 ${isMobile ? 'p-4 space-y-6' : 'p-6'}`}>
         {/* Enhanced Header Section */}
-        <div className={`bg-white rounded-3xl p-8 text-black relative overflow-hidden border-2 border-orange-200 shadow-2xl transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+        <div className={`bg-white rounded-3xl text-black relative overflow-hidden border-2 border-orange-200 shadow-2xl transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'} ${isMobile ? 'p-4' : 'p-8'}`}>
           <div 
             className="absolute inset-0 opacity-10"
             style={{
@@ -313,11 +333,11 @@ export function Analytics() {
           <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-blue-500/5"></div>
           
           <div className="relative z-10">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between ${isMobile ? 'gap-4' : 'gap-6'}`}>
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center relative overflow-hidden group hover:scale-110 transition-all duration-500 shadow-lg">
-                    <BarChart3 className="w-8 h-8 text-white relative z-10 group-hover:animate-pulse" />
+                  <div className={`bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center relative overflow-hidden shadow-lg ${isMobile ? 'w-12 h-12' : 'w-16 h-16'} ${isMobile ? 'transition-transform duration-300' : 'group hover:scale-110 transition-all duration-500'}`}>
+                    <BarChart3 className={`text-white relative z-10 ${isMobile ? 'w-6 h-6' : 'w-8 h-8'} ${isMobile ? '' : 'group-hover:animate-pulse'}`} />
                     <img 
                       src={image1} 
                       alt="Analytics background" 
@@ -326,44 +346,44 @@ export function Analytics() {
                     <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-blue-500/20 rounded-2xl"></div>
                   </div>
                   <div>
-                    <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-blue-600 bg-clip-text text-transparent">
+                    <h1 className={`font-bold bg-gradient-to-r from-orange-600 to-blue-600 bg-clip-text text-transparent ${isMobile ? 'text-2xl' : 'text-3xl sm:text-4xl lg:text-5xl'}`}>
                       Analytics Dashboard
                     </h1>
-                    <p className="text-lg text-black/70 font-medium">
-                      Comprehensive insights into your hiring performance
+                    <p className={`text-black/70 font-medium ${isMobile ? 'text-sm' : 'text-lg'}`}>
+                      {isMobile ? 'Hiring insights & performance' : 'Comprehensive insights into your hiring performance'}
                     </p>
                   </div>
                 </div>
                 
-                {/* Enhanced Stats */}
-                <div className="flex flex-wrap gap-4">
-                  <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-100 to-orange-200 rounded-xl">
-                    <BarChart3 className="w-5 h-5 text-orange-600" />
-                    <span className="text-sm font-semibold text-orange-800">Real-time Analytics</span>
+                {/* Enhanced Stats - Mobile Optimized */}
+                <div className={`grid gap-2 ${isMobile ? 'grid-cols-2' : 'flex flex-wrap gap-4'}`}>
+                  <div className={`flex items-center gap-1 bg-gradient-to-r from-orange-100 to-orange-200 rounded-lg ${isMobile ? 'px-2 py-1' : 'px-4 py-2 rounded-xl'}`}>
+                    <BarChart3 className="w-3 h-3 text-orange-600 flex-shrink-0" />
+                    <span className="text-xs font-semibold text-orange-800 truncate">Real-time Analytics</span>
                   </div>
-                  <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-blue-200 rounded-xl">
-                    <TrendingUp className="w-5 h-5 text-blue-600" />
-                    <span className="text-sm font-semibold text-blue-800">Performance Tracking</span>
+                  <div className={`flex items-center gap-1 bg-gradient-to-r from-blue-100 to-blue-200 rounded-lg ${isMobile ? 'px-2 py-1' : 'px-4 py-2 rounded-xl'}`}>
+                    <TrendingUp className="w-3 h-3 text-blue-600 flex-shrink-0" />
+                    <span className="text-xs font-semibold text-blue-800 truncate">Performance</span>
                   </div>
-                  <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-100 to-green-200 rounded-xl">
-                    <Target className="w-5 h-5 text-green-600" />
-                    <span className="text-sm font-semibold text-green-800">Goal Monitoring</span>
+                  <div className={`flex items-center gap-1 bg-gradient-to-r from-green-100 to-green-200 rounded-lg ${isMobile ? 'px-2 py-1' : 'px-4 py-2 rounded-xl'}`}>
+                    <Target className="w-3 h-3 text-green-600 flex-shrink-0" />
+                    <span className="text-xs font-semibold text-green-800 truncate">Goals</span>
                   </div>
-                  <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-purple-200 rounded-xl">
-                    <Activity className="w-5 h-5 text-purple-600" />
-                    <span className="text-sm font-semibold text-purple-800">Advanced Insights</span>
+                  <div className={`flex items-center gap-1 bg-gradient-to-r from-purple-100 to-purple-200 rounded-lg ${isMobile ? 'px-2 py-1' : 'px-4 py-2 rounded-xl'}`}>
+                    <Activity className="w-3 h-3 text-purple-600 flex-shrink-0" />
+                    <span className="text-xs font-semibold text-purple-800 truncate">Insights</span>
                   </div>
                 </div>
               </div>
               
-              <div className="flex gap-4">
-                <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-3 text-lg font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 gap-3">
-                  <Download className="w-5 h-5" />
-                  Export Data
+              <div className={`flex gap-3 ${isMobile ? 'flex-col' : 'flex-row'}`}>
+                <Button className={`bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 gap-3 ${isMobile ? 'px-3 py-2 text-sm' : 'px-6 py-3 text-lg'}`}>
+                  <Download className="w-4 h-4" />
+                  {isMobile ? 'Export' : 'Export Data'}
                 </Button>
-                <Button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 text-lg font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 gap-3">
-                  <RefreshCw className="w-5 h-5" />
-                  Refresh
+                <Button className={`bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 gap-3 ${isMobile ? 'px-3 py-2 text-sm' : 'px-6 py-3 text-lg'}`}>
+                  <RefreshCw className="w-4 h-4" />
+                  {isMobile ? 'Refresh' : 'Refresh'}
                 </Button>
               </div>
             </div>
@@ -377,23 +397,23 @@ export function Analytics() {
         {/* Enhanced Time Range Selector */}
         <div className="group relative">
           <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-blue-500/10 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-500"></div>
-          <Card className="relative group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 border-0 shadow-lg bg-white/90 backdrop-blur-sm">
+          <Card className={`relative group border-0 shadow-lg bg-white/90 backdrop-blur-sm ${isMobile ? 'hover:shadow-lg transition-shadow duration-300' : 'hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2'}`}>
             <CardHeader className="relative z-10">
-              <CardTitle className="flex items-center gap-3 text-xl font-bold text-black">
-                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center">
-                  <Filter className="w-6 h-6 text-white" />
+              <CardTitle className={`flex items-center gap-3 font-bold text-black ${isMobile ? 'text-lg' : 'text-xl'}`}>
+                <div className={`bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center ${isMobile ? 'w-8 h-8' : 'w-10 h-10'}`}>
+                  <Filter className={`text-white ${isMobile ? 'w-4 h-4' : 'w-6 h-6'}`} />
                 </div>
                 Analytics Controls
               </CardTitle>
             </CardHeader>
             <CardContent className="relative z-10">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-                <div className="flex items-center gap-4">
-                  <span className="font-semibold text-black text-lg">Time Range:</span>
+              <div className={`flex flex-col ${isMobile ? 'gap-4' : 'sm:flex-row sm:items-center sm:justify-between gap-6'}`}>
+                <div className={`flex items-center gap-3 ${isMobile ? 'flex-col items-start' : 'gap-4'}`}>
+                  <span className={`font-semibold text-black ${isMobile ? 'text-sm' : 'text-lg'}`}>Time Range:</span>
                   <select
                     value={timeRange}
                     onChange={(e) => setTimeRange(e.target.value)}
-                    className="px-6 py-3 text-lg rounded-2xl border-2 border-orange-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-200 transition-all duration-300 hover:shadow-lg bg-white font-semibold text-black"
+                    className={`rounded-2xl border-2 border-orange-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-200 transition-all duration-300 hover:shadow-lg bg-white font-semibold text-black ${isMobile ? 'px-3 py-2 text-sm w-full' : 'px-6 py-3 text-lg'}`}
                   >
                     {timeRangeOptions.map(option => (
                       <option key={option.value} value={option.value}>
@@ -402,14 +422,14 @@ export function Analytics() {
                     ))}
                   </select>
                 </div>
-                <div className="flex gap-4">
-                  <Button className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-6 py-3 text-lg font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 gap-3">
-                    <Download className="w-5 h-5" />
-                    Export Data
+                <div className={`flex gap-3 ${isMobile ? 'flex-col' : 'flex-row'}`}>
+                  <Button className={`bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 gap-3 ${isMobile ? 'px-3 py-2 text-sm' : 'px-6 py-3 text-lg'}`}>
+                    <Download className="w-4 h-4" />
+                    {isMobile ? 'Export' : 'Export Data'}
                   </Button>
-                  <Button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 text-lg font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 gap-3">
-                    <RefreshCw className="w-5 h-5" />
-                    Refresh
+                  <Button className={`bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 gap-3 ${isMobile ? 'px-3 py-2 text-sm' : 'px-6 py-3 text-lg'}`}>
+                    <RefreshCw className="w-4 h-4" />
+                    {isMobile ? 'Refresh' : 'Refresh'}
                   </Button>
                 </div>
               </div>
@@ -421,7 +441,7 @@ export function Analytics() {
         </div>
 
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+        <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6'}`}>
           {[
             {
               title: 'Total Candidates',
@@ -460,23 +480,23 @@ export function Analytics() {
               trend: analytics.timeToHireTrend.startsWith('+') ? 'down' : 'up'
             }
           ].map((metric, index) => (
-            <Card key={index} className="hover:shadow-md transition-shadow relative overflow-hidden">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-black">{metric.title}</p>
-                    <p className="text-2xl font-bold text-black">{metric.value}</p>
+            <Card key={index} className={`transition-shadow relative overflow-hidden ${isMobile ? 'hover:shadow-md' : 'hover:shadow-md'}`}>
+              <CardContent className={`${isMobile ? 'p-4' : 'p-6'}`}>
+                <div className={`flex items-center justify-between ${isMobile ? 'flex-col items-start gap-3' : ''}`}>
+                  <div className={`${isMobile ? 'w-full' : ''}`}>
+                    <p className={`font-medium text-black ${isMobile ? 'text-xs' : 'text-sm'}`}>{metric.title}</p>
+                    <p className={`font-bold text-black ${isMobile ? 'text-xl' : 'text-2xl'}`}>{metric.value}</p>
                     <div className="flex items-center gap-1 mt-1">
                       {metric.trend === 'up' ? (
                         <ArrowUpRight className="w-3 h-3 text-green-600" />
                       ) : (
                         <ArrowDownRight className="w-3 h-3 text-red-600" />
                       )}
-                      <p className="text-xs text-green-600">{metric.change}</p>
+                      <p className={`text-green-600 ${isMobile ? 'text-xs' : 'text-xs'}`}>{metric.change}</p>
                     </div>
                   </div>
-                  <div className={`w-12 h-12 ${metric.bgColor} rounded-lg flex items-center justify-center relative overflow-hidden`}>
-                    <metric.icon className={`w-6 h-6 ${metric.color} relative z-10`} />
+                  <div className={`${metric.bgColor} rounded-lg flex items-center justify-center relative overflow-hidden ${isMobile ? 'w-10 h-10' : 'w-12 h-12'}`}>
+                    <metric.icon className={`${metric.color} relative z-10 ${isMobile ? 'w-5 h-5' : 'w-6 h-6'}`} />
                     <img 
                       src={[image1, image2, image3, image4][index % 4]} 
                       alt="Background" 
@@ -484,86 +504,86 @@ export function Analytics() {
                     />
                   </div>
                 </div>
-                <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full -translate-y-8 translate-x-8 opacity-30"></div>
+                <div className={`absolute top-0 right-0 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full opacity-30 ${isMobile ? 'w-12 h-12 -translate-y-6 translate-x-6' : 'w-16 h-16 -translate-y-8 translate-x-8'}`}></div>
               </CardContent>
             </Card>
           ))}
         </div>
 
         {/* Charts Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2 gap-6'}`}>
           {/* Applications Over Time */}
           <Card className="relative overflow-hidden">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-orange-600" />
-                Applications Over Time
+              <CardTitle className={`flex items-center gap-2 ${isMobile ? 'text-sm' : ''}`}>
+                <BarChart3 className={`text-orange-600 ${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
+                {isMobile ? 'Applications Over Time' : 'Applications Over Time'}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className={isMobile ? 'p-4' : ''}>
               <CustomLineChart data={chartData.applications} title="" />
             </CardContent>
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full -translate-y-12 translate-x-12 opacity-20"></div>
+            <div className={`absolute top-0 right-0 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full opacity-20 ${isMobile ? 'w-16 h-16 -translate-y-8 translate-x-8' : 'w-24 h-24 -translate-y-12 translate-x-12'}`}></div>
           </Card>
 
           {/* Stage Distribution */}
           <Card className="relative overflow-hidden">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <PieChart className="w-5 h-5 text-orange-600" />
-                Candidate Stage Distribution
+              <CardTitle className={`flex items-center gap-2 ${isMobile ? 'text-sm' : ''}`}>
+                <PieChart className={`text-orange-600 ${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
+                {isMobile ? 'Stage Distribution' : 'Candidate Stage Distribution'}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className={isMobile ? 'p-4' : ''}>
               <CustomPieChart data={chartData.stageDistribution} title="" />
             </CardContent>
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full -translate-y-12 translate-x-12 opacity-20"></div>
+            <div className={`absolute top-0 right-0 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full opacity-20 ${isMobile ? 'w-16 h-16 -translate-y-8 translate-x-8' : 'w-24 h-24 -translate-y-12 translate-x-12'}`}></div>
           </Card>
 
           {/* Top Skills */}
           <Card className="relative overflow-hidden">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-orange-600" />
-                Top Skills in Demand
+              <CardTitle className={`flex items-center gap-2 ${isMobile ? 'text-sm' : ''}`}>
+                <BarChart3 className={`text-orange-600 ${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
+                {isMobile ? 'Top Skills' : 'Top Skills in Demand'}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className={isMobile ? 'p-4' : ''}>
               <CustomBarChart data={chartData.topSkills} title="" color="bg-green-500" />
             </CardContent>
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-100 to-green-200 rounded-full -translate-y-12 translate-x-12 opacity-20"></div>
+            <div className={`absolute top-0 right-0 bg-gradient-to-br from-green-100 to-green-200 rounded-full opacity-20 ${isMobile ? 'w-16 h-16 -translate-y-8 translate-x-8' : 'w-24 h-24 -translate-y-12 translate-x-12'}`}></div>
           </Card>
 
           {/* Time to Hire Distribution */}
           <Card className="relative overflow-hidden">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-orange-600" />
-                Time to Hire Distribution
+              <CardTitle className={`flex items-center gap-2 ${isMobile ? 'text-sm' : ''}`}>
+                <Clock className={`text-orange-600 ${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
+                {isMobile ? 'Time to Hire' : 'Time to Hire Distribution'}
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className={isMobile ? 'p-4' : ''}>
               <CustomBarChart data={chartData.timeToHire} title="" color="bg-purple-500" />
             </CardContent>
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full -translate-y-12 translate-x-12 opacity-20"></div>
+            <div className={`absolute top-0 right-0 bg-gradient-to-br from-purple-100 to-purple-200 rounded-full opacity-20 ${isMobile ? 'w-16 h-16 -translate-y-8 translate-x-8' : 'w-24 h-24 -translate-y-12 translate-x-12'}`}></div>
           </Card>
         </div>
 
         {/* Source Effectiveness */}
         <Card className="relative overflow-hidden">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-                <Activity className="w-5 h-5 text-orange-600" />
-              Source Effectiveness
+            <CardTitle className={`flex items-center gap-2 ${isMobile ? 'text-sm' : ''}`}>
+                <Activity className={`text-orange-600 ${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
+              {isMobile ? 'Source Effectiveness' : 'Source Effectiveness'}
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
+          <CardContent className={isMobile ? 'p-4' : ''}>
+            <div className={`space-y-3 ${isMobile ? 'space-y-2' : 'space-y-4'}`}>
               {chartData.sourceEffectiveness.map((source, index) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-orange-50 rounded-lg relative overflow-hidden">
+                <div key={index} className={`flex items-center justify-between bg-orange-50 rounded-lg relative overflow-hidden ${isMobile ? 'p-3' : 'p-4'}`}>
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center relative overflow-hidden">
-                      <Building className="w-5 h-5 text-orange-600 relative z-10" />
+                    <div className={`bg-orange-100 rounded-lg flex items-center justify-center relative overflow-hidden ${isMobile ? 'w-8 h-8' : 'w-10 h-10'}`}>
+                      <Building className={`text-orange-600 relative z-10 ${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
                       <img 
                         src={[image1, image2, image3, image4, image5, image6][index % 6]} 
                         alt="Source background" 
@@ -571,52 +591,52 @@ export function Analytics() {
                       />
                     </div>
                     <div>
-                      <h3 className="font-medium text-black">{source.source}</h3>
-                      <p className="text-sm text-black">{source.applications} applications</p>
+                      <h3 className={`font-medium text-black ${isMobile ? 'text-sm' : ''}`}>{source.source}</h3>
+                      <p className={`text-black ${isMobile ? 'text-xs' : 'text-sm'}`}>{source.applications} applications</p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-bold text-black">{source.hires} hires</div>
-                    <div className="text-sm text-green-600">{source.conversion}% conversion</div>
+                    <div className={`font-bold text-black ${isMobile ? 'text-sm' : 'text-lg'}`}>{source.hires} hires</div>
+                    <div className={`text-green-600 ${isMobile ? 'text-xs' : 'text-sm'}`}>{source.conversion}% conversion</div>
                   </div>
                 </div>
               ))}
             </div>
           </CardContent>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full -translate-y-16 translate-x-16 opacity-10"></div>
+          <div className={`absolute top-0 right-0 bg-gradient-to-br from-orange-100 to-orange-200 rounded-full opacity-10 ${isMobile ? 'w-20 h-20 -translate-y-10 translate-x-10' : 'w-32 h-32 -translate-y-16 translate-x-16'}`}></div>
         </Card>
 
         {/* Performance Insights */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3 gap-6'}`}>
           <Card className="relative overflow-hidden">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-orange-600" />
+              <CardTitle className={`flex items-center gap-2 ${isMobile ? 'text-sm' : ''}`}>
+                <TrendingUp className={`text-orange-600 ${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
                 Key Insights
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="p-3 bg-green-50 rounded-lg">
+            <CardContent className={isMobile ? 'p-4' : ''}>
+              <div className={`space-y-3 ${isMobile ? 'space-y-2' : 'space-y-4'}`}>
+                <div className={`bg-green-50 rounded-lg ${isMobile ? 'p-2' : 'p-3'}`}>
                   <div className="flex items-center gap-2 mb-1">
-                    <CheckCircle className="w-4 h-4 text-green-600" />
-                    <span className="text-sm font-medium text-green-800">High Performance</span>
+                    <CheckCircle className={`text-green-600 ${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                    <span className={`font-medium text-green-800 ${isMobile ? 'text-xs' : 'text-sm'}`}>High Performance</span>
                   </div>
-                  <p className="text-sm text-green-700">Referral hires have 26.7% conversion rate</p>
+                  <p className={`text-green-700 ${isMobile ? 'text-xs' : 'text-sm'}`}>Referral hires have 26.7% conversion rate</p>
                 </div>
-                <div className="p-3 bg-blue-50 rounded-lg">
+                <div className={`bg-blue-50 rounded-lg ${isMobile ? 'p-2' : 'p-3'}`}>
                   <div className="flex items-center gap-2 mb-1">
-                    <Target className="w-4 h-4 text-blue-600" />
-                    <span className="text-sm font-medium text-blue-800">Opportunity</span>
+                    <Target className={`text-blue-600 ${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                    <span className={`font-medium text-blue-800 ${isMobile ? 'text-xs' : 'text-sm'}`}>Opportunity</span>
                   </div>
-                  <p className="text-sm text-blue-700">LinkedIn applications are high but conversion is low</p>
+                  <p className={`text-blue-700 ${isMobile ? 'text-xs' : 'text-sm'}`}>LinkedIn applications are high but conversion is low</p>
                 </div>
-                <div className="p-3 bg-orange-50 rounded-lg">
+                <div className={`bg-orange-50 rounded-lg ${isMobile ? 'p-2' : 'p-3'}`}>
                   <div className="flex items-center gap-2 mb-1">
-                    <Clock className="w-4 h-4 text-orange-600" />
-                    <span className="text-sm font-medium text-orange-800">Trend</span>
+                    <Clock className={`text-orange-600 ${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                    <span className={`font-medium text-orange-800 ${isMobile ? 'text-xs' : 'text-sm'}`}>Trend</span>
                   </div>
-                  <p className="text-sm text-orange-700">Time to hire increased by 2 days this month</p>
+                  <p className={`text-orange-700 ${isMobile ? 'text-xs' : 'text-sm'}`}>Time to hire increased by 2 days this month</p>
                 </div>
               </div>
             </CardContent>
@@ -624,15 +644,15 @@ export function Analytics() {
 
           <Card className="relative overflow-hidden">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="w-5 h-5 text-orange-600" />
+              <CardTitle className={`flex items-center gap-2 ${isMobile ? 'text-sm' : ''}`}>
+                <Award className={`text-orange-600 ${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
                 Goals & Targets
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+            <CardContent className={isMobile ? 'p-4' : ''}>
+              <div className={`space-y-3 ${isMobile ? 'space-y-2' : 'space-y-4'}`}>
                 <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
+                  <div className={`flex justify-between ${isMobile ? 'text-xs' : 'text-sm'}`}>
                     <span className="text-black">Monthly Hires Target</span>
                     <span className="text-black">{analytics.hiredCandidates}/25</span>
                   </div>
@@ -644,7 +664,7 @@ export function Analytics() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
+                  <div className={`flex justify-between ${isMobile ? 'text-xs' : 'text-sm'}`}>
                     <span className="text-black">Conversion Rate Goal</span>
                     <span className="text-black">{analytics.applicationRate}%/15%</span>
                   </div>
@@ -656,7 +676,7 @@ export function Analytics() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
+                  <div className={`flex justify-between ${isMobile ? 'text-xs' : 'text-sm'}`}>
                     <span className="text-black">Time to Hire Goal</span>
                     <span className="text-black">{analytics.avgTimeToHire} days/14 days</span>
                   </div>
@@ -673,32 +693,32 @@ export function Analytics() {
 
           <Card className="relative overflow-hidden">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Zap className="w-5 h-5 text-orange-600" />
+              <CardTitle className={`flex items-center gap-2 ${isMobile ? 'text-sm' : ''}`}>
+                <Zap className={`text-orange-600 ${isMobile ? 'w-4 h-4' : 'w-5 h-5'}`} />
                 Quick Actions
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
+            <CardContent className={isMobile ? 'p-4' : ''}>
+              <div className={`space-y-2 ${isMobile ? 'space-y-2' : 'space-y-3'}`}>
                 <Link to="/jobs/new">
-                  <Button variant="secondary" className="w-full gap-2">
+                  <Button variant="secondary" className={`w-full gap-2 ${isMobile ? 'py-2 text-sm' : ''}`}>
                     <Briefcase className="w-4 h-4" />
-                    Post New Job
+                    {isMobile ? 'Post Job' : 'Post New Job'}
                   </Button>
                 </Link>
                 <Link to="/candidates">
-                  <Button variant="secondary" className="w-full gap-2">
+                  <Button variant="secondary" className={`w-full gap-2 ${isMobile ? 'py-2 text-sm' : ''}`}>
                     <Users className="w-4 h-4" />
-                    View Candidates
+                    {isMobile ? 'Candidates' : 'View Candidates'}
                   </Button>
                 </Link>
-                <Button variant="secondary" className="w-full gap-2">
+                <Button variant="secondary" className={`w-full gap-2 ${isMobile ? 'py-2 text-sm' : ''}`}>
                   <Download className="w-4 h-4" />
-                  Export Report
+                  {isMobile ? 'Export' : 'Export Report'}
                 </Button>
-                <Button variant="secondary" className="w-full gap-2">
+                <Button variant="secondary" className={`w-full gap-2 ${isMobile ? 'py-2 text-sm' : ''}`}>
                   <RefreshCw className="w-4 h-4" />
-                  Refresh Data
+                  {isMobile ? 'Refresh' : 'Refresh Data'}
                 </Button>
               </div>
             </CardContent>

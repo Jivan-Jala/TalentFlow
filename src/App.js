@@ -26,10 +26,18 @@ function App() {
   useEffect(() => {
     // Initialize MSW and seed data
     const initializeApp = async () => {
-      // Start MSW worker
-      await worker.start({
-        onUnhandledRequest: 'bypass',
-      });
+      try {
+        // Start MSW worker
+        await worker.start({
+          onUnhandledRequest: 'bypass',
+          serviceWorker: {
+            url: '/mockServiceWorker.js',
+          },
+        });
+      } catch (error) {
+        console.warn('MSW failed to start:', error);
+        // Continue without MSW if it fails
+      }
       
       // Check if data already exists
       const db = (await import('./db/database')).default;

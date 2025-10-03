@@ -122,7 +122,7 @@ export function AssessmentForm() {
           Back to Assessments
         </Button>
         <div>
-          <h1 className="text-3xl font-bold text-secondary-900">
+          <h1 className="text-2xl sm:text-3xl font-bold text-secondary-900">
             {isEdit ? 'Edit Assessment' : 'Create Assessment'}
           </h1>
           <p className="text-secondary-600">
@@ -151,7 +151,7 @@ export function AssessmentForm() {
               {errors.title && <p className="text-sm text-danger-600 mt-1">{errors.title}</p>}
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="jobId">Associated Job *</Label>
                 <Select
@@ -232,7 +232,7 @@ export function AssessmentForm() {
                       )}
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor={`type_${question.id}`}>Question Type</Label>
                         <Select
